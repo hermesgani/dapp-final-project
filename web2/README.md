@@ -1,8 +1,8 @@
 # Lens Protocol Front End Starter
 
-This is an example of how to build a front-end application on top of [Lens Protocol](https://docs.lens.xyz/docs).
+This project based on [Lens Protocol Frontend](https://github.com/dabit3/lens-protocol-frontend)
 
-The main API calls used in this app are defined in __api/index.js__:
+The main API calls used in this app are defined in **api/index.js**:
 
 1. [recommendProfiles](https://docs.lens.xyz/docs/recommended-profiles#api-details) - Get popular profiles
 
@@ -31,14 +31,6 @@ You can run this project by following these steps:
 1. Clone the repo, change into the directory, and install the dependencies
 
 ```sh
-git clone git@github.com:dabit3/lens-protocol-frontend.git
-
-cd lens-protocol-frontend
-
-npm install
-
-# or
-
 yarn
 ```
 
