@@ -1,4 +1,4 @@
-import { useContext, useRef } from 'react'
+import { useContext, useRef, useState } from 'react'
 import { css } from '@emotion/css'
 import { ethers } from 'ethers'
 import { getSigner, baseMetadata } from '../utils'
@@ -20,11 +20,37 @@ const client = create({
   },
 })
 
+
 export default function CreatePostModal({
   setIsModalOpen
 }) {
   const { profile } = useContext(AppContext)
+  const [images, setImages] = useState([])
   const inputRef = useRef(null)
+  const onSubmitHandler = async (event) => {
+    event.preventDefault();
+    const form = event.target;
+    const files = (form[0]).files;
+
+    if (!files || files.length === 0) {
+      return alert("No files selected");
+    }
+
+    const file = files[0];
+    // upload files
+    const result = await client.add(file);
+
+    setImages([
+      ...images,
+      {
+        cid: result.cid,
+        path: result.path,
+      },
+    ]);
+
+    form.reset();
+  };
+
   async function uploadToIPFS() {
     const metaData = {
       content: inputRef.current.innerHTML,
@@ -88,10 +114,25 @@ export default function CreatePostModal({
               ref={inputRef}
             />
             <div className={buttonContainerStyle}>
+              <form onSubmit={onSubmitHandler}>
+                <input name="file" type="file" />
+
+                <button type="submit">Upload File</button>
+              </form>
               <button
                 className={buttonStyle}
                 onClick={savePost}
               >Create Post</button>
+            </div>
+            <div>
+              {images.map((image, index) => (
+                <img
+                  alt={`Uploaded #${index + 1}`}
+                  src={"https://skywalker.infura-ipfs.io/ipfs/" + image.path}
+                  style={{ margin: "15px" }}
+                  key={image.cid.toString() + index}
+                />
+              ))}
             </div>
           </div>
         </div>
