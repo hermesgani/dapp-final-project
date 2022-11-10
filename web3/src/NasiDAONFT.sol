@@ -2,27 +2,25 @@
 pragma solidity ^0.8.17;
 
 import "openzeppelin-contracts/token/ERC721/ERC721.sol";
-import "openzeppelin-contracts/utils/Counter.sol";
+import "openzeppelin-contracts/utils/Counters.sol";
 import "openzeppelin-contracts/access/Ownable.sol";
 
 contract NasiDAONFT is ERC721("Nasi DAO NFT", "NADA"), Ownable {
     using Counters for Counters.Counter;
     Counters.Counter internal _tokenIds;
 
-    string constant baseURI =
-        "/ipfs/Qmf6sEFHK44AhFH8SE43QPnw4z7QUCEMhhLHvRSXdpYCY4/";
+    string constant ipfsURI =
+        "ipfs://Qmf6sEFHK44AhFH8SE43QPnw4z7QUCEMhhLHvRSXdpYCY4";
 
-    function _baseURI() internal view virtual override returns (string memory) {
-        return baseURI;
-    }
-
-    function setBaseURI(string memory _baseURI) public onlyOwner {
-        baseURI = _baseURI;
-    }
+    mapping(address => uint256) public nftOwner;
 
     function mint(address to) public onlyOwner returns (uint) {
+        require(nftOwner[to] == 0, "You already had an NFT");
+
         uint newId = _tokenIds.current();
         _safeMint(to, newId);
+        _setTokenURI(newId, ipfsURI);
+        nftOwner[to] = newId;
 
         _tokenIds.increment();
 
