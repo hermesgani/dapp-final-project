@@ -16,7 +16,7 @@ contract NasiDAONFT is ERC721("Nasi DAO NFT", "NADA"), Ownable {
     }
 
     string constant ipfsURI =
-        "ipfs://QmQubJS4KtK49i458kGe4BosUP6WNjBrJ8zqVoTEYSa3jg";
+        "ipfs://QmfAbanLn5Bv9hhetNVeDyA78HrPBtcq7FTLrXmVKwsqVF";
 
     mapping(address => uint256) public nftOwner;
     OwnerData[] public owners;
