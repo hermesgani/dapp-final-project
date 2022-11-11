@@ -101,20 +101,6 @@ function MyApp({ Component, pageProps }) {
                   <p className={linkTextStyle}>Home</p>
                 </a>
               </Link>
-              <Link href='/profiles'>
-                <a>
-                  <p className={linkTextStyle}>Explore Profiles</p>
-                </a>
-              </Link>
-              {
-                userProfile && (
-                  <Link href={`/profile/${userProfile.id}`}>
-                    <a>
-                      <p className={linkTextStyle}>Profile</p>
-                    </a>
-                  </Link>
-                )
-              }
             </div>
             <div className={buttonContainerStyle}>
               {

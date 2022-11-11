@@ -98,18 +98,6 @@ export default function Home() {
 
   return (
     <div>
-      <div className={searchContainerStyle}>
-        <SearchInput
-          placeholder='Search'
-          onChange={e => setSearchString(e.target.value)}
-          value={searchString}
-          onKeyDown={handleKeyDown}
-        />
-        <Button
-          buttonText="SEARCH POSTS"
-          onClick={searchForPost}
-        />
-      </div>
       <div className={listItemContainerStyle}>
         {
           loadingState === 'no-results' && (
