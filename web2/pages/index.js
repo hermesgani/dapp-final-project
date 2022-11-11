@@ -18,6 +18,7 @@ export default function Home() {
   const [loadingState, setLoadingState] = useState('loading')
   const [searchString, setSearchString] = useState('')
   const { profile } = useContext(AppContext)
+  const ipfsUrl = "https://skywalker.infura-ipfs.io/ipfs/"
 
   useEffect(() => {
     fetchPosts() 
@@ -40,6 +41,9 @@ export default function Home() {
             post.backgroundColor = generateRandomColor()
             return post
           }
+        })
+        posts.map(post => {
+          console.log(post)
         })
         setPosts(posts)
         setLoadingState('loaded')
@@ -144,6 +148,8 @@ export default function Home() {
                   </div>
                   <div>
                     <p className={latestPostStyle}>{trimString(post.metadata.content, 200)}</p>
+                    {(post.metadata.media.length > 0) ? (<img src = {post.metadata.media[0].original.url.replace("ipfs://", ipfsUrl)}></img>) : ''}
+                    
                   </div>
                 </div>
               </a>

@@ -52,7 +52,7 @@ export default function CreatePostModal({
   };
 
   async function uploadToIPFS() {
-    const metaData = {
+    var metaData = {
       content: inputRef.current.innerHTML,
       description: inputRef.current.innerHTML,
       name: `Post by @${profile.handle}`,
@@ -61,8 +61,16 @@ export default function CreatePostModal({
       createdOn: new Date().toISOString(),
       ...baseMetadata
     }
+    console.log("Images")
+    if (images.length > 0) {
+      console.log("Found image, update ipfs with ")
+      metaData.media = [{"item": "ipfs://" + images[0].path, "type" : "image/jpeg"}]
+      metaData.mainContentFocus = "IMAGE"
+    }
+    console.log("Metadata:")
+    console.log(metaData)
     const added = await client.add(JSON.stringify(metaData))
-    const uri = `https://ipfs.infura.io/ipfs/${added.path}`
+    const uri = `https://ipfs.io/ipfs/${added.path}`
     return uri
   }
   async function savePost() {
@@ -82,10 +90,14 @@ export default function CreatePostModal({
         referenceModule: '0x0000000000000000000000000000000000000000',
         referenceModuleInitData: []
       }
+      console.log("Post data")
+      console.log(postData)
       const tx = await contract.post(postData)
       await tx.wait()
+      console.log("Tx data")
+      console.log(tx)
       setIsModalOpen(false)
-      
+      window.location.reload()
     } catch (err) {
       console.log('error: ', err)
     }
