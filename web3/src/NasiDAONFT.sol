@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
-import "openzeppelin-contracts/token/ERC721/ERC721.sol";
+import "openzeppelin-contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "openzeppelin-contracts/utils/Counters.sol";
 import "openzeppelin-contracts/access/Ownable.sol";
 
-contract NasiDAONFT is ERC721("Nasi DAO NFT", "NADA"), Ownable {
+contract NasiDAONFT is ERC721URIStorage, Ownable {
     using Counters for Counters.Counter;
     Counters.Counter internal _tokenIds;
 
@@ -21,6 +21,8 @@ contract NasiDAONFT is ERC721("Nasi DAO NFT", "NADA"), Ownable {
     mapping(address => uint256) public nftOwner;
     OwnerData[] public owners;
 
+    constructor() ERC721("Nasi DAO NFT", "NADA") {}
+
     function registerOwner(address to, string memory _profileId)
         public
         onlyOwner
@@ -29,7 +31,7 @@ contract NasiDAONFT is ERC721("Nasi DAO NFT", "NADA"), Ownable {
         owners.push(OwnerData(to, _profileId, tokenId));
     }
 
-    function mint(address to) public onlyOwner returns (uint) {
+    function mint(address to) internal onlyOwner returns (uint) {
         require(nftOwner[to] == 0, "You already had an NFT");
 
         uint newId = _tokenIds.current();
