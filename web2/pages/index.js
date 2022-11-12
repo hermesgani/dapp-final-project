@@ -3,7 +3,7 @@ import { createClient, basicClient, searchPublications, explorePublications, get
 import { css } from '@emotion/css'
 import { ethers } from 'ethers'
 import { trimString, generateRandomColor, getSigner } from '../utils'
-import { Placeholders, Button } from '../components'
+import { Placeholders, Button, ButtonCollect } from '../components'
 import { AppContext } from '../context'
 import Link from 'next/link'
 import { LENS_HUB_CONTRACT_ADDRESS } from '../api'
@@ -73,20 +73,18 @@ export default function Home() {
     }
   }
 
-  async function collectPost() {
+  async function collectPost(postId) {
     const contract = new ethers.Contract(
-      "0x23b9467334bEb345aAa6fd1545538F3d54436e96",
+      LENS_HUB_CONTRACT_ADDRESS,
       LENSHUB,
       getSigner()
     )
+
     try {
-      const pubId = "0x063e"
-      console.log("Collect post " + pubId)
-      console.log("Profile id " + profile.id)
+      const exploded = postId.split("-")
+      const pubId = exploded[1]
       const tx = await contract.collect(profile.id, pubId, [])
       await tx.wait()
-      console.log("Tx data")
-      console.log(tx)
     } catch (err) {
       console.log('error when collect post: ', err)
     }
@@ -100,12 +98,6 @@ export default function Home() {
 
   return (
     <div>
-      <div className={searchContainerStyle}>
-        <Button
-          buttonText="COLLECT POSTS"
-          onClick={collectPost}
-        />
-      </div>
       <div className={listItemContainerStyle}>
         {
           loadingState === 'no-results' && (
@@ -118,39 +110,46 @@ export default function Home() {
         {
           (posts) ?
           posts.map((post, index) => (
-            <Link href={`/profile/${post.profile.id || post.profile.profileId}`} key={index}>
-              <a>
-                <div className={listItemStyle}>
-                  <p className={itemTypeStyle}>{typeMap[post.__typename]}</p>
-                  <div className={profileContainerStyle} >
-                    {
-                      post.profile.picture && post.profile.picture.original ? (
-                      <img src={post.profile.picture.original.url.replace("ipfs://", ipfsUrl)} className={profileImageStyle} />
-                      ) : (
-                        <div
-                          className={
-                            css`
-                            ${placeholderStyle};
-                            background-color: ${post.backgroundColor};
-                            `
-                          }
-                        />
-                      )
-                    }
-                    
-                    <div className={profileInfoStyle}>
-                      <h3 className={nameStyle}>{post.profile.name}</h3>
-                      <p className={handleStyle}>{post.profile.handle}</p>
+            <div className={listItemStyle}>
+              <Link href={`/profile/${post.profile.id || post.profile.profileId}`} key={index}>
+                <a>
+                  <div>
+                    <p className={itemTypeStyle}>{typeMap[post.__typename]}</p>
+                    <div className={profileContainerStyle} >
+                      {
+                        post.profile.picture && post.profile.picture.original ? (
+                        <img src={post.profile.picture.original.url.replace("ipfs://", ipfsUrl)} className={profileImageStyle} />
+                        ) : (
+                          <div
+                            className={
+                              css`
+                              ${placeholderStyle};
+                              background-color: ${post.backgroundColor};
+                              `
+                            }
+                          />
+                        )
+                      }
+                      
+                      <div className={profileInfoStyle}>
+                        <h3 className={nameStyle}>{post.profile.name}</h3>
+                        <p className={handleStyle}>{post.profile.handle}</p>
+                      </div>
+                    </div>
+                    <div>
+                      <p className={latestPostStyle}>{trimString(post.metadata.content, 200)}</p>
+                      {(post.metadata.media.length > 0) ? (<img src = {post.metadata.media[0].original.url.replace("ipfs://", ipfsUrl)}></img>) : ''}
+                      
                     </div>
                   </div>
-                  <div>
-                    <p className={latestPostStyle}>{trimString(post.metadata.content, 200)}</p>
-                    {(post.metadata.media.length > 0) ? (<img src = {post.metadata.media[0].original.url.replace("ipfs://", ipfsUrl)}></img>) : ''}
-                    
-                  </div>
-                </div>
-              </a>
-            </Link>
+                </a>
+              </Link>
+                <ButtonCollect
+                  buttonText="COLLECT POSTS"
+                  onClick={() => collectPost(post.id)}
+                  key={`collect-${index}`}
+                />
+            </div>
           )) : ""
         }
       </div>
