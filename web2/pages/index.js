@@ -3,12 +3,12 @@ import { createClient, basicClient, searchPublications, explorePublications, get
 import { css } from '@emotion/css'
 import { ethers } from 'ethers'
 import { trimString, generateRandomColor, getSigner } from '../utils'
-import { Placeholders } from '../components'
+import { Placeholders, Button } from '../components'
 import { AppContext } from '../context'
 import Link from 'next/link'
 import { LENS_HUB_CONTRACT_ADDRESS } from '../api'
 import LENSHUB from '../abi/lenshub'
-import { getSigner } from '../utils'
+
 
 const typeMap = {
   Comment: "Comment",
@@ -73,20 +73,6 @@ export default function Home() {
     }
   }
 
-  async function searchForPost() {
-    setLoadingState('')
-    try {
-      const urqlClient = await createClient()
-      const response = await urqlClient.query(searchPublications, {
-        query: searchString, type: 'PUBLICATION'
-      }).toPromise()
-      const postData = response.data.search.items.filter(post => {
-        if (post.profile) {
-          post.backgroundColor = generateRandomColor()
-          return post
-        }
-      })
-
   async function collectPost() {
     const contract = new ethers.Contract(
       LENS_HUB_CONTRACT_ADDRESS,
@@ -94,12 +80,10 @@ export default function Home() {
       getSigner()
     )
     try {
-      const collectData = {
-        profileId: profile.id,
-        pubId: searchString,
-        data: []
-      }
-      const tx = await contract.collect(collectData)
+      const pubId = "0x063e"
+      console.log("Collect post " + pubId)
+      console.log("Profile id " + profile.id)
+      const tx = await contract.collect(profile.id, pubId, [])
       await tx.wait()
       console.log("Tx data")
       console.log(tx)
@@ -117,12 +101,6 @@ export default function Home() {
   return (
     <div>
       <div className={searchContainerStyle}>
-        <SearchInput
-          placeholder='Search'
-          onChange={e => setSearchString(e.target.value)}
-          value={searchString}
-          onKeyDown={handleKeyDown}
-        />
         <Button
           buttonText="COLLECT POSTS"
           onClick={collectPost}
