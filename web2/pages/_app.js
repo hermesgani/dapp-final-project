@@ -216,7 +216,8 @@ function MyApp({ Component, pageProps }) {
     <AppContext.Provider value={{
       userAddress,
       profile: userProfile,
-      allOwners
+      allOwners,
+      minted
     }}>
       <div>
         <nav className={navStyle}>

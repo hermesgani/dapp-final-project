@@ -20,7 +20,7 @@ export default function Home() {
   const [posts, setPosts] = useState([])
   const [loadingState, setLoadingState] = useState('loading')
   const [searchString, setSearchString] = useState('')
-  const { profile, allOwners } = useContext(AppContext)
+  const { profile, allOwners, minted } = useContext(AppContext)
   const ipfsUrl = "https://skywalker.infura-ipfs.io/ipfs/"
 
   useEffect(() => {
@@ -144,11 +144,11 @@ export default function Home() {
                   </div>
                 </a>
               </Link>
-                <ButtonCollect
+              {minted && <ButtonCollect
                   buttonText="COLLECT POSTS"
                   onClick={() => collectPost(post.id)}
                   key={`collect-${index}`}
-                />
+              />}
             </div>
           )) : ""
         }
