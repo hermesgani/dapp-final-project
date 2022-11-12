@@ -12,6 +12,7 @@ export const PERIPHERY_CONTRACT_ADDRESS = "0xeff187b4190E551FC25a7fA4dFC6cf7fDeF
 //Testnet Mumbai
 // export const LENS_HUB_CONTRACT_ADDRESS = "0x60Ae865ee4C725cd04353b5AAb364553f56ceF82"
 // export const PERIPHERY_CONTRACT_ADDRESS = "0xD5037d72877808cdE7F669563e9389930AF404E8"
+export const NASI_DAO_CONTRACT_ADDRESS = "0x2ef08D46E963BDd463d1f80C800B00D410A0458C"
 
 export const basicClient = new createUrqlClient({
   url: APIURL
@@ -60,6 +61,7 @@ export {
   getProfiles,
   getDefaultProfile,
   getPublications,
+  getManyPublications,
   searchProfiles,
   searchPublications,
   explorePublications,

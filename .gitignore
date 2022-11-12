@@ -6,5 +6,6 @@ out/
 !/broadcast
 /broadcast/*
 /broadcast/*/31337/
+web3/broadcast/*
 
 .env

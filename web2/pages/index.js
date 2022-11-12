@@ -1,9 +1,9 @@
 import { useState, useEffect, useContext } from 'react'
-import { createClient, basicClient, searchPublications, explorePublications, timeline } from '../api'
+import { createClient, basicClient, searchPublications, explorePublications, getManyPublications } from '../api'
 import { css } from '@emotion/css'
 import { ethers } from 'ethers'
-import { trimString, generateRandomColor } from '../utils'
-import { Button, SearchInput, Placeholders } from '../components'
+import { trimString, generateRandomColor, getSigner } from '../utils'
+import { Placeholders } from '../components'
 import { AppContext } from '../context'
 import Link from 'next/link'
 import { LENS_HUB_CONTRACT_ADDRESS } from '../api'
@@ -20,7 +20,7 @@ export default function Home() {
   const [posts, setPosts] = useState([])
   const [loadingState, setLoadingState] = useState('loading')
   const [searchString, setSearchString] = useState('')
-  const { profile } = useContext(AppContext)
+  const { profile, allOwners } = useContext(AppContext)
   const ipfsUrl = "https://skywalker.infura-ipfs.io/ipfs/"
 
   useEffect(() => {
@@ -35,19 +35,7 @@ export default function Home() {
     console.log('addresses: ', addresses)
     if (profile) {
       try {
-        const client = await createClient()
-        const response = await client.query(timeline, {
-          profileId: profile.id, limit: 15
-        }).toPromise()
-        const posts = response.data.timeline.items.filter(post => {
-          if (post.profile) {
-            post.backgroundColor = generateRandomColor()
-            return post
-          }
-        })
-        posts.map(post => {
-          console.log(post)
-        })
+        const posts = await getManyPosts()
         setPosts(posts)
         setLoadingState('loaded')
       } catch (error) {
@@ -70,28 +58,34 @@ export default function Home() {
     }
   }
 
-  // async function searchForPost() {
-  //   setLoadingState('')
-  //   try {
-  //     const urqlClient = await createClient()
-  //     const response = await urqlClient.query(searchPublications, {
-  //       query: searchString, type: 'PUBLICATION'
-  //     }).toPromise()
-  //     const postData = response.data.search.items.filter(post => {
-  //       if (post.profile) {
-  //         post.backgroundColor = generateRandomColor()
-  //         return post
-  //       }
-  //     })
-  
-  //     setPosts(postData)
-  //     if (!postData.length) {
-  //       setLoadingState('no-results')
-  //     }
-  //   } catch (error) {
-  //     console.log({ error })
-  //   }
-  // }
+  async function getManyPosts() {
+    try {
+      const profileIds = await allOwners
+      const response = await basicClient.query(getManyPublications, {
+        ids: profileIds, limit: 20
+      }).toPromise()
+
+      const posts = response.data.publications.items
+
+      return posts
+    } catch (err) {
+      console.log(err)
+    }
+  }
+
+  async function searchForPost() {
+    setLoadingState('')
+    try {
+      const urqlClient = await createClient()
+      const response = await urqlClient.query(searchPublications, {
+        query: searchString, type: 'PUBLICATION'
+      }).toPromise()
+      const postData = response.data.search.items.filter(post => {
+        if (post.profile) {
+          post.backgroundColor = generateRandomColor()
+          return post
+        }
+      })
 
   async function collectPost() {
     const contract = new ethers.Contract(
@@ -144,6 +138,7 @@ export default function Home() {
            loadingState === 'loading' && <Placeholders number={6} />
         }
         {
+          (posts) ?
           posts.map((post, index) => (
             <Link href={`/profile/${post.profile.id || post.profile.profileId}`} key={index}>
               <a>
@@ -178,7 +173,7 @@ export default function Home() {
                 </div>
               </a>
             </Link>
-          ))
+          )) : ""
         }
       </div>
     </div>
