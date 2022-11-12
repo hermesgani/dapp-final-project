@@ -83,7 +83,7 @@ export default function Home() {
     try {
       const exploded = postId.split("-")
       const pubId = exploded[1]
-      const tx = await contract.collect(profile.id, pubId, [])
+      const tx = await contract.collect(exploded[0], pubId, [])
       await tx.wait()
     } catch (err) {
       console.log('error when collect post: ', err)
@@ -110,8 +110,8 @@ export default function Home() {
         {
           (posts) ?
           posts.map((post, index) => (
-            <div className={listItemStyle}>
-              <Link href={`/profile/${post.profile.id || post.profile.profileId}`} key={index}>
+            <div className={listItemStyle} key={index}>
+              <Link href={`/profile/${post.profile.id || post.profile.profileId}`}>
                 <a>
                   <div>
                     <p className={itemTypeStyle}>{typeMap[post.__typename]}</p>
