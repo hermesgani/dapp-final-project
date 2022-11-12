@@ -63,7 +63,7 @@ export default function Home() {
       }).toPromise()
 
       const posts = response.data.publications.items
-
+      console.log(posts)
       return posts
     } catch (err) {
       console.log(err)
@@ -120,7 +120,7 @@ export default function Home() {
                   <div className={profileContainerStyle} >
                     {
                       post.profile.picture && post.profile.picture.original ? (
-                      <img src={post.profile.picture.original.url} className={profileImageStyle} />
+                      <img src={post.profile.picture.original.url.replace("ipfs://", ipfsUrl)} className={profileImageStyle} />
                       ) : (
                         <div
                           className={
