@@ -3,9 +3,12 @@ import { createClient, basicClient, searchPublications, explorePublications, get
 import { css } from '@emotion/css'
 import { ethers } from 'ethers'
 import { trimString, generateRandomColor, getSigner } from '../utils'
-import { Placeholders } from '../components'
+import { Placeholders, Button, ButtonCollect } from '../components'
 import { AppContext } from '../context'
 import Link from 'next/link'
+import { LENS_HUB_CONTRACT_ADDRESS } from '../api'
+import LENSHUB from '../abi/lenshub'
+
 
 const typeMap = {
   Comment: "Comment",
@@ -17,7 +20,7 @@ export default function Home() {
   const [posts, setPosts] = useState([])
   const [loadingState, setLoadingState] = useState('loading')
   const [searchString, setSearchString] = useState('')
-  const { profile, allOwners } = useContext(AppContext)
+  const { profile, allOwners, minted } = useContext(AppContext)
   const ipfsUrl = "https://skywalker.infura-ipfs.io/ipfs/"
 
   useEffect(() => {
@@ -70,26 +73,20 @@ export default function Home() {
     }
   }
 
-  async function searchForPost() {
-    setLoadingState('')
+  async function collectPost(postId) {
+    const contract = new ethers.Contract(
+      LENS_HUB_CONTRACT_ADDRESS,
+      LENSHUB,
+      getSigner()
+    )
+
     try {
-      const urqlClient = await createClient()
-      const response = await urqlClient.query(searchPublications, {
-        query: searchString, type: 'PUBLICATION'
-      }).toPromise()
-      const postData = response.data.search.items.filter(post => {
-        if (post.profile) {
-          post.backgroundColor = generateRandomColor()
-          return post
-        }
-      })
-  
-      setPosts(postData)
-      if (!postData.length) {
-        setLoadingState('no-results')
-      }
-    } catch (error) {
-      console.log({ error })
+      const exploded = postId.split("-")
+      const pubId = exploded[1]
+      const tx = await contract.collect(exploded[0], pubId, [])
+      await tx.wait()
+    } catch (err) {
+      console.log('error when collect post: ', err)
     }
   }
 
@@ -113,39 +110,46 @@ export default function Home() {
         {
           (posts) ?
           posts.map((post, index) => (
-            <Link href={`/profile/${post.profile.id || post.profile.profileId}`} key={index}>
-              <a>
-                <div className={listItemStyle}>
-                  <p className={itemTypeStyle}>{typeMap[post.__typename]}</p>
-                  <div className={profileContainerStyle} >
-                    {
-                      post.profile.picture && post.profile.picture.original ? (
-                      <img src={post.profile.picture.original.url.replace("ipfs://", ipfsUrl)} className={profileImageStyle} />
-                      ) : (
-                        <div
-                          className={
-                            css`
-                            ${placeholderStyle};
-                            background-color: ${post.backgroundColor};
-                            `
-                          }
-                        />
-                      )
-                    }
-                    
-                    <div className={profileInfoStyle}>
-                      <h3 className={nameStyle}>{post.profile.name}</h3>
-                      <p className={handleStyle}>{post.profile.handle}</p>
+            <div className={listItemStyle} key={index}>
+              <Link href={`/profile/${post.profile.id || post.profile.profileId}`}>
+                <a>
+                  <div>
+                    <p className={itemTypeStyle}>{typeMap[post.__typename]}</p>
+                    <div className={profileContainerStyle} >
+                      {
+                        post.profile.picture && post.profile.picture.original ? (
+                        <img src={post.profile.picture.original.url.replace("ipfs://", ipfsUrl)} className={profileImageStyle} />
+                        ) : (
+                          <div
+                            className={
+                              css`
+                              ${placeholderStyle};
+                              background-color: ${post.backgroundColor};
+                              `
+                            }
+                          />
+                        )
+                      }
+                      
+                      <div className={profileInfoStyle}>
+                        <h3 className={nameStyle}>{post.profile.name}</h3>
+                        <p className={handleStyle}>{post.profile.handle}</p>
+                      </div>
+                    </div>
+                    <div>
+                      <p className={latestPostStyle}>{trimString(post.metadata.content, 200)}</p>
+                      {(post.metadata.media.length > 0) ? (<img src = {post.metadata.media[0].original.url.replace("ipfs://", ipfsUrl)}></img>) : ''}
+                      
                     </div>
                   </div>
-                  <div>
-                    <p className={latestPostStyle}>{trimString(post.metadata.content, 200)}</p>
-                    {(post.metadata.media.length > 0) ? (<img src = {post.metadata.media[0].original.url.replace("ipfs://", ipfsUrl)}></img>) : ''}
-                    
-                  </div>
-                </div>
-              </a>
-            </Link>
+                </a>
+              </Link>
+              {minted && <ButtonCollect
+                  buttonText="COLLECT POSTS"
+                  onClick={() => collectPost(post.id)}
+                  key={`collect-${index}`}
+              />}
+            </div>
           )) : ""
         }
       </div>
