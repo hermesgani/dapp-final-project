@@ -178,19 +178,21 @@ function MyApp({ Component, pageProps }) {
                   <div>
                     {
                       !minted ? (
-                        <button className={buttonStyle} onClick={mintToken}>Mint</button>
+                        <button className={buttonStyle} onClick={mintToken}>Mint NFT</button>
                       ) : (
-                        <button className={buttonStyleMinted} disabled="disabled">Minted</button>
+                        <div>
+                          <button className={buttonStyleMinted} disabled="disabled">Minted</button>
+                          <button
+                            className={modalButtonStyle}
+                            onClick={() => setIsModalOpen(true)}>
+                            <img
+                              src="/create-post.svg"
+                              className={createPostStyle}
+                            />
+                          </button>
+                        </div>
                       )
                     }
-                    <button
-                      className={modalButtonStyle}
-                      onClick={() => setIsModalOpen(true)}>
-                      <img
-                        src="/create-post.svg"
-                        className={createPostStyle}
-                      />
-                    </button>
                   </div>
                 )
               }
