@@ -75,7 +75,7 @@ export default function Home() {
 
   async function collectPost() {
     const contract = new ethers.Contract(
-      LENS_HUB_CONTRACT_ADDRESS,
+      "0x23b9467334bEb345aAa6fd1545538F3d54436e96",
       LENSHUB,
       getSigner()
     )
