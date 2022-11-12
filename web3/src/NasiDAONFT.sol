@@ -23,10 +23,7 @@ contract NasiDAONFT is ERC721URIStorage, Ownable {
 
     constructor() ERC721("Nasi DAO NFT", "NADA") {}
 
-    function registerOwner(address to, string memory _profileId)
-        public
-        onlyOwner
-    {
+    function registerOwner(address to, string memory _profileId) public {
         uint tokenId = mint(to);
         owners.push(OwnerData(to, _profileId, tokenId));
     }
@@ -44,7 +41,7 @@ contract NasiDAONFT is ERC721URIStorage, Ownable {
         return newId;
     }
 
-    function getAllOwners() public view onlyOwner returns (OwnerData[] memory) {
+    function getAllOwners() public view returns (OwnerData[] memory) {
         return owners;
     }
 }

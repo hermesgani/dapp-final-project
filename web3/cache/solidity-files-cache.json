@@ -1243,10 +1243,10 @@
         }
       }
     },
-    "script/Counter.s.sol": {
-      "lastModificationDate": 1667904980578,
-      "contentHash": "0705c52104730a78aef4aa6694175c81",
-      "sourceName": "script/Counter.s.sol",
+    "script/NasiDAONFT.s.sol": {
+      "lastModificationDate": 1668232057689,
+      "contentHash": "76cdec03865f1997bb8156a95e77040d",
+      "sourceName": "script/NasiDAONFT.s.sol",
       "solcConfig": {
         "settings": {
           "optimizer": {
@@ -1289,18 +1289,32 @@
         "lib/forge-std/src/StdUtils.sol",
         "lib/forge-std/src/Vm.sol",
         "lib/forge-std/src/console.sol",
-        "lib/forge-std/src/console2.sol"
+        "lib/forge-std/src/console2.sol",
+        "lib/openzeppelin-contracts/contracts/access/Ownable.sol",
+        "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol",
+        "lib/openzeppelin-contracts/contracts/token/ERC721/IERC721.sol",
+        "lib/openzeppelin-contracts/contracts/token/ERC721/IERC721Receiver.sol",
+        "lib/openzeppelin-contracts/contracts/token/ERC721/extensions/ERC721URIStorage.sol",
+        "lib/openzeppelin-contracts/contracts/token/ERC721/extensions/IERC721Metadata.sol",
+        "lib/openzeppelin-contracts/contracts/utils/Address.sol",
+        "lib/openzeppelin-contracts/contracts/utils/Context.sol",
+        "lib/openzeppelin-contracts/contracts/utils/Counters.sol",
+        "lib/openzeppelin-contracts/contracts/utils/Strings.sol",
+        "lib/openzeppelin-contracts/contracts/utils/introspection/ERC165.sol",
+        "lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol",
+        "lib/openzeppelin-contracts/contracts/utils/math/Math.sol",
+        "src/NasiDAONFT.sol"
       ],
       "versionRequirement": "^0.8.13",
       "artifacts": {
-        "CounterScript": {
-          "0.8.17+commit.8df45f5f.Darwin.appleclang": "Counter.s.sol/CounterScript.json"
+        "DeployScript": {
+          "0.8.17+commit.8df45f5f.Darwin.appleclang": "NasiDAONFT.s.sol/DeployScript.json"
         }
       }
     },
     "src/NasiDAONFT.sol": {
-      "lastModificationDate": 1668166341281,
-      "contentHash": "2a8bd5657313c98d2b2b4e1f02860364",
+      "lastModificationDate": 1668236792015,
+      "contentHash": "5741ae4d7c4200c1d583a3985e733941",
       "sourceName": "src/NasiDAONFT.sol",
       "solcConfig": {
         "settings": {
@@ -1353,7 +1367,7 @@
       }
     },
     "test/NasiDAONFT.t.sol": {
-      "lastModificationDate": 1668166455283,
+      "lastModificationDate": 1668179822790,
       "contentHash": "fce9e184d2b690055e8de1039768fdac",
       "sourceName": "test/NasiDAONFT.t.sol",
       "solcConfig": {

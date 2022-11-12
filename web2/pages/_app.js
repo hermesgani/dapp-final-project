@@ -4,16 +4,19 @@ import { ethers, providers } from 'ethers'
 import { css } from '@emotion/css'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { createClient, STORAGE_KEY, authenticate as authenticateMutation, getChallenge, getDefaultProfile } from '../api'
-import { parseJwt, refreshAuthToken } from '../utils'
+import { createClient, STORAGE_KEY, authenticate as authenticateMutation, getChallenge, getDefaultProfile, NASI_DAO_CONTRACT_ADDRESS } from '../api'
+import { parseJwt, refreshAuthToken, getSigner } from '../utils'
 import { AppContext } from '../context'
 import Modal from '../components/CreatePostModal'
+import NASIDAONFT from '../abi/nasidaonft'
 
 function MyApp({ Component, pageProps }) {
   const [connected, setConnected] = useState(true)
   const [userAddress, setUserAddress] = useState()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [userProfile, setUserProfile] = useState()
+  const [allOwners, setAllOwners] = useState()
+  const [minted, setMinted] = useState(false)
   const router = useRouter()
 
   useEffect(() => {
@@ -33,7 +36,12 @@ function MyApp({ Component, pageProps }) {
     }
     checkConnection()
     listenForRouteChangeEvents()
+    buildAllOwners()
   }, [])
+  
+  useEffect(() => {
+    checkMint()
+  }, [userProfile])
 
   async function getUserProfile(address) {
     try {
@@ -82,10 +90,67 @@ function MyApp({ Component, pageProps }) {
     }
   }
 
+  async function buildAllOwners() {
+    try {
+      const contract = new ethers.Contract(
+        NASI_DAO_CONTRACT_ADDRESS,
+        NASIDAONFT,
+        getSigner()
+      )
+
+      const nftOwners = await contract.getAllOwners()
+      const profileIds = nftOwners.map((element) => {
+        return element[1]
+      })
+
+      setAllOwners(profileIds)
+    } catch (err) {
+      console.log(err)
+      setAllOwners([])
+    }
+  }
+
+  async function checkMint() {
+    try {
+      if (typeof userProfile !== "undefined") {
+        const owners = allOwners
+        const profileId = userProfile.id
+
+        if (owners.includes(profileId)) {
+          setMinted(true)
+        } else {
+          setMinted(false)
+        }
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  async function mintToken() {
+    const contract = new ethers.Contract(
+      NASI_DAO_CONTRACT_ADDRESS,
+      NASIDAONFT,
+      getSigner()
+    )
+
+    try {
+      const tx = await contract.registerOwner(userAddress, userProfile.id)
+      await tx.wait()
+
+      setMinted(true)
+      window.location.reload()
+    } catch (err) {
+      console.log(err)
+      setMinted(false)
+    }
+  }
+
   return (
     <AppContext.Provider value={{
       userAddress,
-      profile: userProfile
+      profile: userProfile,
+      allOwners
     }}>
       <div>
         <nav className={navStyle}>
@@ -110,14 +175,19 @@ function MyApp({ Component, pageProps }) {
               }
               {
                 connected && (
-                  <button
-                    className={modalButtonStyle}
-                    onClick={() => setIsModalOpen(true)}>
-                    <img
-                      src="/create-post.svg"
-                      className={createPostStyle}
-                    />
-                  </button>
+                  <div>
+                    {
+                      !minted && <button className={buttonStyle} onClick={mintToken}>Mint</button>
+                    }
+                    <button
+                      className={modalButtonStyle}
+                      onClick={() => setIsModalOpen(true)}>
+                      <img
+                        src="/create-post.svg"
+                        className={createPostStyle}
+                      />
+                    </button>
+                  </div>
                 )
               }
             </div>
