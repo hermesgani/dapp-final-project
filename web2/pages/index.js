@@ -6,6 +6,9 @@ import { trimString, generateRandomColor } from '../utils'
 import { Button, SearchInput, Placeholders } from '../components'
 import { AppContext } from '../context'
 import Link from 'next/link'
+import { LENS_HUB_CONTRACT_ADDRESS } from '../api'
+import LENSHUB from '../abi/lenshub'
+import { getSigner } from '../utils'
 
 const typeMap = {
   Comment: "Comment",
@@ -67,26 +70,47 @@ export default function Home() {
     }
   }
 
-  async function searchForPost() {
-    setLoadingState('')
-    try {
-      const urqlClient = await createClient()
-      const response = await urqlClient.query(searchPublications, {
-        query: searchString, type: 'PUBLICATION'
-      }).toPromise()
-      const postData = response.data.search.items.filter(post => {
-        if (post.profile) {
-          post.backgroundColor = generateRandomColor()
-          return post
-        }
-      })
+  // async function searchForPost() {
+  //   setLoadingState('')
+  //   try {
+  //     const urqlClient = await createClient()
+  //     const response = await urqlClient.query(searchPublications, {
+  //       query: searchString, type: 'PUBLICATION'
+  //     }).toPromise()
+  //     const postData = response.data.search.items.filter(post => {
+  //       if (post.profile) {
+  //         post.backgroundColor = generateRandomColor()
+  //         return post
+  //       }
+  //     })
   
-      setPosts(postData)
-      if (!postData.length) {
-        setLoadingState('no-results')
+  //     setPosts(postData)
+  //     if (!postData.length) {
+  //       setLoadingState('no-results')
+  //     }
+  //   } catch (error) {
+  //     console.log({ error })
+  //   }
+  // }
+
+  async function collectPost() {
+    const contract = new ethers.Contract(
+      LENS_HUB_CONTRACT_ADDRESS,
+      LENSHUB,
+      getSigner()
+    )
+    try {
+      const collectData = {
+        profileId: profile.id,
+        pubId: searchString,
+        data: []
       }
-    } catch (error) {
-      console.log({ error })
+      const tx = await contract.collect(collectData)
+      await tx.wait()
+      console.log("Tx data")
+      console.log(tx)
+    } catch (err) {
+      console.log('error when collect post: ', err)
     }
   }
 
@@ -98,6 +122,18 @@ export default function Home() {
 
   return (
     <div>
+      <div className={searchContainerStyle}>
+        <SearchInput
+          placeholder='Search'
+          onChange={e => setSearchString(e.target.value)}
+          value={searchString}
+          onKeyDown={handleKeyDown}
+        />
+        <Button
+          buttonText="COLLECT POSTS"
+          onClick={collectPost}
+        />
+      </div>
       <div className={listItemContainerStyle}>
         {
           loadingState === 'no-results' && (
