@@ -177,16 +177,22 @@ function MyApp({ Component, pageProps }) {
                 connected && (
                   <div>
                     {
-                      !minted && <button className={buttonStyle} onClick={mintToken}>Mint</button>
+                      !minted ? (
+                        <button className={buttonStyle} onClick={mintToken}>Mint NFT</button>
+                      ) : (
+                        <div>
+                          <button className={buttonStyleMinted} disabled="disabled">Minted</button>
+                          <button
+                            className={modalButtonStyle}
+                            onClick={() => setIsModalOpen(true)}>
+                            <img
+                              src="/create-post.svg"
+                              className={createPostStyle}
+                            />
+                          </button>
+                        </div>
+                      )
                     }
-                    <button
-                      className={modalButtonStyle}
-                      onClick={() => setIsModalOpen(true)}>
-                      <img
-                        src="/create-post.svg"
-                        className={createPostStyle}
-                      />
-                    </button>
                   </div>
                 )
               }
@@ -284,6 +290,26 @@ const buttonStyle = css`
   letter-spacing: .75px;
   &:hover {
     background-color: rgba(249, 92, 255, .75);
+  }
+`
+
+const buttonStyleMinted = css`
+  border: none;
+  outline: none;
+  margin-left: 15px;
+  background-color: white;
+  color: #340036;
+  padding: 13px;
+  border-radius: 25px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  background-color: rgb(235, 235, 228);
+  transition: all .35s;
+  width: 160px;
+  letter-spacing: .75px;
+  &:hover {
+    background-color: rgba(235, 235, 228, .75);
   }
 `
 
