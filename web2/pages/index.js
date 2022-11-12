@@ -110,8 +110,8 @@ export default function Home() {
         {
           (posts) ?
           posts.map((post, index) => (
-            <div className={listItemStyle}>
-              <Link href={`/profile/${post.profile.id || post.profile.profileId}`} key={index}>
+            <div className={listItemStyle} key={index}>
+              <Link href={`/profile/${post.profile.id || post.profile.profileId}`}>
                 <a>
                   <div>
                     <p className={itemTypeStyle}>{typeMap[post.__typename]}</p>
