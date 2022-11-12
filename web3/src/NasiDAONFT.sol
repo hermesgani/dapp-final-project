@@ -28,7 +28,7 @@ contract NasiDAONFT is ERC721URIStorage, Ownable {
         owners.push(OwnerData(to, _profileId, tokenId));
     }
 
-    function mint(address to) internal onlyOwner returns (uint) {
+    function mint(address to) internal returns (uint) {
         require(nftOwner[to] == 0, "You already had an NFT");
 
         uint newId = _tokenIds.current();

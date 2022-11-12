@@ -1313,8 +1313,8 @@
       }
     },
     "src/NasiDAONFT.sol": {
-      "lastModificationDate": 1668236792015,
-      "contentHash": "5741ae4d7c4200c1d583a3985e733941",
+      "lastModificationDate": 1668240289638,
+      "contentHash": "4ee023e07c32f19439df6e62456d66d9",
       "sourceName": "src/NasiDAONFT.sol",
       "solcConfig": {
         "settings": {
