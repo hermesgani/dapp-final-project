@@ -4,11 +4,26 @@ import { ethers, providers } from 'ethers'
 import { css } from '@emotion/css'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { createClient, STORAGE_KEY, authenticate as authenticateMutation, getChallenge, getDefaultProfile, NASI_DAO_CONTRACT_ADDRESS } from '../api'
-import { parseJwt, refreshAuthToken, getSigner } from '../utils'
+import { createClient, STORAGE_KEY, authenticate as authenticateMutation, getChallenge, getDefaultProfile, NASI_DAO_CONTRACT_ADDRESS, LENS_HUB_CONTRACT_ADDRESS } from '../api'
+import { parseJwt, refreshAuthToken, getSigner, baseMetadata } from '../utils'
 import { AppContext } from '../context'
 import Modal from '../components/CreatePostModal'
 import NASIDAONFT from '../abi/nasidaonft'
+import LENSHUB from '../abi/lenshub'
+import { v4 as uuid } from 'uuid'
+import { create } from 'ipfs-http-client'
+
+const projectId = '2HLYkz2xfBYoFG58z0Nld0wz3WW'
+const projectSecret = '52790fce1af5f6992b984f619cedfc68'
+const auth = 'Basic ' + Buffer.from(projectId + ':' + projectSecret).toString('base64');
+const postClient = create({
+  host: 'ipfs.infura.io',
+  port: 5001,
+  protocol: 'https',
+  headers: {
+      authorization: auth,
+  },
+})
 
 function MyApp({ Component, pageProps }) {
   const [connected, setConnected] = useState(true)
@@ -127,6 +142,58 @@ function MyApp({ Component, pageProps }) {
     }
   }
 
+  async function buildAutoPost() {
+    let metaData = {
+      content: `@${userProfile.handle} joined NasiDAO Community`,
+      description: `@${userProfile.handle} joined NasiDAO Community`,
+      name: `Post by @${userProfile.handle}`,
+      external_url: `https://lenster.xyz/u/${userProfile.handle}`,
+      metadata_id: uuid(),
+      createdOn: new Date().toISOString(),
+      ...baseMetadata,
+      media: [
+        {
+          "item": "ipfs://QmX3FJz4skkjTaMDAXUqpYuS1PtLs4fiMTXujUUJmrv1LU",
+          "type": "image/jpeg"
+        }
+      ],
+      mainContentFocus: "IMAGE"
+    }
+
+    const added = await postClient.add(JSON.stringify(metaData))
+    const uri = `https://ipfs.io/ipfs/${added.path}`
+
+    return uri
+  }
+
+  async function joinedPost() {
+    const contentURI = await buildAutoPost()
+
+    const contract = new ethers.Contract(
+      LENS_HUB_CONTRACT_ADDRESS,
+      LENSHUB,
+      getSigner()
+    )
+
+    try {
+      const postData = {
+        profileId: userProfile.id,
+        contentURI,
+        collectModule: '0x23b9467334bEb345aAa6fd1545538F3d54436e96',
+        collectModuleInitData: ethers.utils.defaultAbiCoder.encode(['bool'], [true]),
+        referenceModule: '0x0000000000000000000000000000000000000000',
+        referenceModuleInitData: []
+      }
+
+      const tx = await contract.post(postData)
+      await tx.wait()
+      setMinted(true)
+      window.location.reload()
+    } catch (err) {
+      console.log('error: ', err)
+    }
+  }
+
   async function mintToken() {
     const contract = new ethers.Contract(
       NASI_DAO_CONTRACT_ADDRESS,
@@ -138,8 +205,7 @@ function MyApp({ Component, pageProps }) {
       const tx = await contract.registerOwner(userAddress, userProfile.id)
       await tx.wait()
 
-      setMinted(true)
-      window.location.reload()
+      await joinedPost()
     } catch (err) {
       console.log(err)
       setMinted(false)
