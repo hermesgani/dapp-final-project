@@ -83,7 +83,7 @@ export default function Home() {
     try {
       const exploded = postId.split("-")
       const pubId = exploded[1]
-      const tx = await contract.collect(profile.id, pubId, [])
+      const tx = await contract.collect(exploded[0], pubId, [])
       await tx.wait()
     } catch (err) {
       console.log('error when collect post: ', err)
