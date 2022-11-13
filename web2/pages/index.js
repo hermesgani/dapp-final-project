@@ -149,7 +149,7 @@ export default function Home() {
                 </a>
               </Link>
               {minted && <ButtonCollect
-                  buttonText="COLLECT POSTS"
+                  buttonText="COLLECT POST"
                   onClick={() => collectPost(post.id)}
                   key={`collect-${index}`}
               />}
