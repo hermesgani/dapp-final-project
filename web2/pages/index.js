@@ -138,7 +138,11 @@ export default function Home() {
                     </div>
                     <div>
                       <p className={latestPostStyle}>{trimString(post.metadata.content, 200)}</p>
-                      {(post.metadata.media.length > 0) ? (<img src = {post.metadata.media[0].original.url.replace("ipfs://", ipfsUrl)}></img>) : ''}
+                      {(post.metadata.media.length > 0) ? (<img src = {post.metadata.media[0].original.url.replace("ipfs://", ipfsUrl)} className={
+                        css`
+                        max-width: -webkit-fill-available
+                        `
+                      }></img>) : ''}
                       
                     </div>
                   </div>
